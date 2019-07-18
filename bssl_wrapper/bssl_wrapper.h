@@ -7,10 +7,9 @@
 #include <utility>
 #include <iostream>
 
-//#include <iostream>
-#include <openssl/ssl.h>
-//#include <openssl/bio.h>
-#include <openssl/x509v3.h>
+//#include "openssl/evp.h"
+#include "openssl/ssl.h"
+#include "openssl/x509v3.h"
 
 #define sk_X509_NAME_find(a,b,c) sk_X509_NAME_find((a), (c))
 
@@ -18,12 +17,42 @@
 // ticket.
 #define SSL_TICKET_KEY_NAME_LEN 16
 
+int EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx);
+void EVP_MD_CTX_initialize(EVP_MD_CTX *ctx);
+
 extern "C++" {
 
 #include <memory>
 #include <type_traits>
 
 namespace bssl {
+
+template <typename T, typename CleanupRet, void (*init)(T *),
+          CleanupRet (*cleanup)(T *)>
+class StackAllocated {
+ public:
+  StackAllocated() { init(ctx_); }
+  ~StackAllocated() { cleanup(ctx_); }
+
+  StackAllocated(const StackAllocated<T, CleanupRet, init, cleanup> &) = delete;
+  T& operator=(const StackAllocated<T, CleanupRet, init, cleanup> &) = delete;
+
+  T *get() { return ctx_; }
+  const T *get() const { return ctx_; }
+
+  T *operator->() { return ctx_; }
+  const T *operator->() const { return ctx_; }
+
+  void Reset() {
+    cleanup(ctx_);
+    init(ctx_);
+  }
+
+ private:
+  T *ctx_;
+};
+
+using ScopedEVP_MD_CTX = StackAllocated<EVP_MD_CTX, int, EVP_MD_CTX_initialize, EVP_MD_CTX_cleanup>;
 
 namespace internal {
 
