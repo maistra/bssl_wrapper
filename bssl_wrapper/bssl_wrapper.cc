@@ -2,25 +2,11 @@
 
 int EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx) {
   EVP_MD_CTX_free(ctx);
-  ctx = EVP_MD_CTX_new();
-
-//  OPENSSL_free(ctx->md_data);
-
-//  assert(ctx->pctx == NULL || ctx->pctx_ops != NULL);
-//  if (ctx->pctx_ops) {
-//    ctx->pctx_ops->free(ctx->pctx);
-//  }
-
-//  EVP_MD_CTX_init(ctx);
-
   return 1;
 }
 
-void EVP_MD_CTX_initialize(EVP_MD_CTX *ctx) {
-  EVP_MD_CTX_free(ctx);
-  ctx = EVP_MD_CTX_new();
-
-//  OPENSSL_memset(ctx, 0, sizeof(EVP_MD_CTX));
+EVP_MD_CTX* EVP_MD_CTX_initialize() {
+  return EVP_MD_CTX_new();
 }
 
 int BIO_mem_contents(const BIO *bio, const uint8_t **out_contents,
