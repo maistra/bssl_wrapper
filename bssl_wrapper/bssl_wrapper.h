@@ -7,7 +7,7 @@
 #include <utility>
 #include <iostream>
 
-//#include "openssl/evp.h"
+#include "openssl/evp.h"
 #include "openssl/ssl.h"
 #include "openssl/x509v3.h"
 
@@ -18,7 +18,7 @@
 #define SSL_TICKET_KEY_NAME_LEN 16
 
 int EVP_MD_CTX_cleanup(EVP_MD_CTX *ctx);
-void EVP_MD_CTX_initialize(EVP_MD_CTX *ctx);
+EVP_MD_CTX* EVP_MD_CTX_initialize();
 
 extern "C++" {
 
@@ -27,11 +27,11 @@ extern "C++" {
 
 namespace bssl {
 
-template <typename T, typename CleanupRet, void (*init)(T *),
+template <typename T, typename CleanupRet, T* (*init)(),
           CleanupRet (*cleanup)(T *)>
 class StackAllocated {
  public:
-  StackAllocated() { init(ctx_); }
+  StackAllocated() { ctx_ = init(); }
   ~StackAllocated() { cleanup(ctx_); }
 
   StackAllocated(const StackAllocated<T, CleanupRet, init, cleanup> &) = delete;
@@ -45,11 +45,11 @@ class StackAllocated {
 
   void Reset() {
     cleanup(ctx_);
-    init(ctx_);
+    init();
   }
 
  private:
-  T *ctx_;
+  T* ctx_;
 };
 
 using ScopedEVP_MD_CTX = StackAllocated<EVP_MD_CTX, int, EVP_MD_CTX_initialize, EVP_MD_CTX_cleanup>;
