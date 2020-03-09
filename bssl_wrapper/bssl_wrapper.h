@@ -45,7 +45,7 @@ class StackAllocated {
 
   void Reset() {
     cleanup(ctx_);
-    init();
+    ctx_ = init();
   }
 
  private:
