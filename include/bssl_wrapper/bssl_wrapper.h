@@ -13,6 +13,8 @@
 #include <openssl/evp.h>
 #include <openssl/x509v3.h>
 #include <openssl/ssl.h>
+#include "openssl/pkcs12.h"
+
 
 // stack_free_func is a function that frees an element in a stack. Note its
 // actual type is void (*)(T *) for some T. Low-level |sk_*| functions will be
@@ -154,6 +156,8 @@ using UniquePtr = std::unique_ptr<T, internal::Deleter<T>>;
 BSSL_NAMESPACE_END
 
 }  // extern C++
+
+#include "openssl/bytestring.h"
 
 #endif  // !BORINGSSL_NO_CXX
 
@@ -306,6 +310,7 @@ BORINGSSL_MAKE_DELETER(X509_STORE_CTX, X509_STORE_CTX_free)
 BORINGSSL_MAKE_DELETER(X509_VERIFY_PARAM, X509_VERIFY_PARAM_free)
 BORINGSSL_MAKE_DELETER(DIST_POINT, DIST_POINT_free)
 BORINGSSL_MAKE_DELETER(GENERAL_NAME, GENERAL_NAME_free)
+BORINGSSL_MAKE_DELETER(PKCS12, PKCS12_free)
 
 BSSL_NAMESPACE_END
 
@@ -317,6 +322,7 @@ BORINGSSL_DEFINE_STACK_TRAITS(X509_INFO, X509_INFO, false)
 BORINGSSL_DEFINE_STACK_TRAITS(X509_NAME, X509_NAME, false)
 BORINGSSL_DEFINE_STACK_TRAITS(GENERAL_NAME, GENERAL_NAME, false)
 BORINGSSL_DEFINE_STACK_TRAITS(SSL_CIPHER, SSL_CIPHER, false)
+BORINGSSL_DEFINE_STACK_TRAITS(X509, X509, false)
 
 #define sk_X509_NAME_find(a,b,c) sk_X509_NAME_find((a), (c))
 
